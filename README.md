@@ -12,7 +12,7 @@ However, it does explain how the bindings relate to the original project._
 
 _**NOTE3**: The codebase introduces some concepts found in MIT licensed
 [The RAD Debugger Project](https://github.com/EpicGamesExt/raddebugger), such
-as context cracking._
+as context cracking and structure of this `README.md` file._
 
 Bindings are for **Version 2.1.0-development (2024-07-05)**!
 
@@ -28,13 +28,14 @@ the original library.
 ### Concept
 
 _The_ bindings _mimic_ how Microsoft exposes C bindings for their C++ interfaces.
-_Mimic_ because in fact, D3D12 Memory Allocator itself does not implement an
-interface, sort of. It does implement `IUnknown` interface, but then, it
-simply defines datatypes that inherit from `IUnknownImpl` (Aforementioned
-`IUnknown` implementation), but derived datatypes are not interfaces that are
-then internally implemented. Therefore, in these bindings, there is no concept
-of virtual table and such, because `D3D12MA::Allocator` and related datatypes
-have little to do with this concept.
+_Mimic_ because in fact, D3D12 Memory Allocator itself does not implement a
+D3D12-Memory-Allocator-or-such interface, sort of. It does implement `IUnknown`
+interface, but then, it simply defines datatypes that inherit from
+`IUnknownImpl` (Aforementioned `IUnknown` implementation), but derived
+datatypes are not interfaces that are then internally implemented. Therefore,
+in these bindings, there is no concept of virtual table and such, because
+`D3D12MA::Allocator` itself and related datatypes have little to do with this
+concept.
 
 Procedures are done in `COBJMACROS`-style, allowing you to write, for example:
 ```c
@@ -45,7 +46,7 @@ codebases.
 
 The style or appearance of the API is similar to what is commonly known from C
 APIs for many Windows libraries. Naturally, most functions and data types are
-not prefixed with `I`, as these are not interfaces. Nevertheless, it should
+not prefixed with `I`, as they are not interfaces. Nevertheless, it should
 remain consistent. Below are examples of typical mappings:
 - `D3D12MA::ALLOCATOR_DESC` → `D3D12MA_ALLOCATOR_DESC`
 - `D3D12MA::Allocator` → `D3D12MAAllocator`
@@ -117,8 +118,8 @@ extern char *D3D12SDKPath = u8".\\path\\to\\d3d12\\binaries";
 #define D3D12MA_D3D12_HEADERS_ALREADY_INCLUDED
 #include "d3d12ma.cpp"
 ```
-Examples can be found in `code/samples/simple` and
-`code/samples/simple_agility_sdk`.
+Examples can be found in `code/samples` (`samples_*_main.c` and
+`samples_*_d3d12_main.cpp` files).
 
 ### C++ integration
 
@@ -129,5 +130,5 @@ single unit build, you can include `d3d12ma.h` and `d3d12ma.cpp`. For a
 multiple unit build, you can include `d3d12ma.h` where necessary and add
 `d3d12ma.cpp` as a separate compilation unit. Remember, extra care!
 
-Examples can be found in `code/samples/simple_cpp` and
-`code/samples/simple_cpp_agility_sdk`.
+Examples can be found in `code/samples` (`samples_*_main.cpp`, not
+`samples_*_d3d12_main.cpp` files!).
