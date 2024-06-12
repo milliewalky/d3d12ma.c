@@ -92,14 +92,14 @@ linked wherever required. For single compilation unit builds, linking against
 the main executable is sufficient.
 
 Originally, D3D12 Memory Allocator can be configured by defining appropriate
-options, e.g. `D3D12MA_SORT`, before including the implementation. Since
+options, e.g. `D3D12MA_SORT`~, before including the implementation~. Since
 `d3d12ma.cpp` contains the entire original implementation of D3D12 Memory
 Allocator in itself, as its files have been inlined, configuring D3D12 Memory
 Allocator is as simple as this (returning to the `d3d12ma_main.cpp` file):
 ```c
+#define D3D12MA_SORT(beg, end, cmp) your_desired_sort_func(beg, end, cmp)
 #include "d3d12ma.h"
 
-#define D3D12MA_SORT(beg, end, cmp) your_desired_sort_func(beg, end, cmp)
 #include "d3d12ma.cpp"
 ```
 Remember that extra care has to be taken if you intend to use these build
@@ -108,14 +108,15 @@ options in a multiple unit build.
 Finally, it is possible to use this library with Agility SDK (again, back to
 `d3d12ma_main.cpp` file):
 ```c
+#include "dxgi1_6.h"
 #include "path/to/d3d12.h"
 
 extern UINT D3D12SDKVersion = 613;
 extern char *D3D12SDKPath = u8".\\path\\to\\d3d12\\binaries";
 
+#define D3D12MA_D3D12_HEADERS_ALREADY_INCLUDED
 #include "d3d12ma.h"
 
-#define D3D12MA_D3D12_HEADERS_ALREADY_INCLUDED
 #include "d3d12ma.cpp"
 ```
 Examples can be found in `code/samples` (`samples_*_main.c` and

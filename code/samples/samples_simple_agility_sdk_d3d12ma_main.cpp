@@ -4,17 +4,16 @@
 ////////////////////////////////
 //~ mwalky: [h]
 
-#define COBJMACROS
 #include "dxgi1_6.h"
 #include "third_party/d3d12/d3d12.h"
 
 extern UINT D3D12SDKVersion = 613;
 extern char *D3D12SDKPath = u8".\\third_party\\d3d12";
 
+#define D3D12MA_D3D12_HEADERS_ALREADY_INCLUDED 1
 #include "d3d12ma/d3d12ma.h"
 
 ////////////////////////////////
 //~ mwalky: [cpp]
 
-#define D3D12MA_D3D12_HEADERS_ALREADY_INCLUDED
 #include "d3d12ma/d3d12ma.cpp"

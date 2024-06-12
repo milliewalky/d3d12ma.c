@@ -4,19 +4,19 @@
 ////////////////////////////////
 //~ mwalky: [h]
 
+#pragma comment(lib, "user32")
+#pragma comment(lib, "dxgi")
+#pragma comment(lib, "d3d12")
+
 #include "stdio.h"
 
 #include "windows.h"
 #include "initguid.h"
 
-#define COBJMACROS
 #include "dxgi1_6.h"
 #include "d3d12.h"
 
-#pragma comment(lib, "user32")
-#pragma comment(lib, "dxgi")
-#pragma comment(lib, "d3d12")
-
+#define D3D12MA_D3D12_HEADERS_ALREADY_INCLUDED
 #include "d3d12ma/d3d12ma.h"
 
 ////////////////////////////////
