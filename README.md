@@ -1,19 +1,5 @@
 # (C bindings for) D3D12 Memory Allocator
 
-_**NOTE**: These are bindings for [D3D12 Memory Allocator](https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator)
-developed by Advanced Micro Devices, Inc. I do not own D3D12 Memory Allocator
-in any way. Its documentation mentions that D3D12 Memory Allocator is a C++
-library and so it should remain, but bindings or ports to any other programming
-languages are welcome as external projects. Hence this effort._
-
-_**NOTE2**: This `README.md` file does not provide any documentation for D3D12
-Memory Allocator itself. Refer to [the documentation](https://gpuopen-librariesandsdks.github.io/D3D12MemoryAllocator/html/).
-However, it does explain how the bindings relate to the original project._
-
-_**NOTE3**: The codebase introduces some concepts found in MIT licensed
-[The RAD Debugger Project](https://github.com/EpicGamesExt/raddebugger), such
-as context cracking and structure of this `README.md` file._
-
 Bindings are for **Version 2.1.0-development (2024-07-05)**!
 
 This repository aims to provide C bindings for D3D12 Memory Allocator. At the
@@ -73,11 +59,48 @@ also exist:
 - `local`: Local files, used for local build configuration input files.
   At this very moment, this directory is completetly obsolete.
 
-### C integration
+## Example usage
+
+```c
+D3D12MA_ALLOCATION_DESC allocation_desc = {0};
+{
+ allocation_desc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
+}
+D3D12_RESOURCE_DESC resource_desc = {0};
+{
+ resource_desc.Dimension          = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+ resource_desc.Alignment          = 0;
+ resource_desc.Width              = 1024;
+ resource_desc.Height             = 1024;
+ resource_desc.DepthOrArraySize   = 1;
+ resource_desc.MipLevels          = 1;
+ resource_desc.Format             = DXGI_FORMAT_R8G8B8A8_UNORM;
+ resource_desc.SampleDesc.Count   = 1;
+ resource_desc.SampleDesc.Quality = 0;
+ resource_desc.Layout             = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+ resource_desc.Flags              = D3D12_RESOURCE_FLAG_NONE;
+}
+D3D12MAAllocation *allocation = 0;
+D3D12Resource *resource = 0;
+HRESULT error = D3D12MAAllocator_CreateResource(allocator,
+                                                &allocation_desc,
+                                                &resource_desc,
+                                                D3D12_RESOURCE_STATE_COPY_DEST,
+                                                &clear_value,
+                                                &allocation,
+                                                &IID_ID3D12Resource,
+                                                &resource); // NOTE(mwalky): or `(void **)(&resource)`
+```
+
+## C integration
+
+### Steps
 
 To use this library in any C codebase, create a file `d3d12ma_main.cpp`, which
 should look like this:
 ```c
+// NOTE(mwalky): `d3d12ma_main.cpp`
+
 #include "d3d12ma.h"
 
 #include "d3d12ma.cpp"
@@ -89,7 +112,48 @@ For single compilation unit builds, including `d3d12ma.h` once is sufficient.
 In the case of multiple compilation unit builds, `d3d12ma.h` must be included
 wherever necessary. Of course, the compiled OBJ with the implementation must be
 linked wherever required. For single compilation unit builds, linking against
-the main executable is sufficient.
+the main executable is sufficient. Assuming single compilation unit build, make
+`main.c` file.
+```c
+// NOTE(mwalky): perhaps `main.c`
+
+#pragma comment(lib, "user32")
+#pragma comment(lib, "dxgi")
+#pragma comment(lib, "d3d12")
+
+#include "windows.h"
+#include "initguid.h" // NOTE(mwalky): for GUIDs
+
+#define COBJMACROS
+#include "dxgi1_6.h"
+#include "d3d12.h"
+
+#define D3D12MA_D3D12_HEADERS_ALREADY_INCLUDED
+#include "d3d12ma/d3d12ma.h"
+
+int
+main(void)
+{
+ return 0;
+}
+```
+And finally, `build.bat` (Assuming that `main.c`, `d3d12ma.h`, `d3d12ma.cpp`
+and `d3d12_main.cpp` are in the same directory as `build.bat`).
+```batchfile
+call cl /Od /I..\ /nologo /FC /Z7 main.c d3d12ma_main.cpp /link /MANIFEST:EMBED /INCREMENTAL:NO /out:main.exe
+```
+Calling `cl` requires Command Prompt (`cmd`) equipped with MSVC. This can be
+achieved by calling `vcvarsall.bat amd64` bundled either with Visual Studio
+Build Tools or Visual Studio itself. Provided either Visual Studio Build Tools
+or Visual Studio is installed, you might simply want to run
+`x64 Native Tools Command Prompt for VS <year>`, which spawns `cmd` with
+`vcvarsall.bat amd64` called automatically at its start-up.
+
+Obviously, a build system is a matter of choice. You may use whichever you
+prefer, but keep in mind the considerations above regarding single and multiple
+compilation unit situations.
+
+### Further notes
 
 Originally, D3D12 Memory Allocator can be configured by defining appropriate
 options, e.g. `D3D12MA_SORT`~, before including the implementation~. Since
@@ -97,6 +161,8 @@ options, e.g. `D3D12MA_SORT`~, before including the implementation~. Since
 Allocator in itself, as its files have been inlined, configuring D3D12 Memory
 Allocator is as simple as this (returning to the `d3d12ma_main.cpp` file):
 ```c
+// NOTE(mwalky): `d3d12ma_main.cpp`
+
 #define D3D12MA_SORT(beg, end, cmp) your_desired_sort_func(beg, end, cmp)
 #include "d3d12ma.h"
 
@@ -108,6 +174,8 @@ options in a multiple unit build.
 Finally, it is possible to use this library with Agility SDK (again, back to
 `d3d12ma_main.cpp` file):
 ```c
+// NOTE(mwalky): `d3d12ma_main.cpp`
+
 #include "dxgi1_6.h"
 #include "path/to/d3d12.h"
 
@@ -122,7 +190,7 @@ extern char *D3D12SDKPath = u8".\\path\\to\\d3d12\\binaries";
 Examples can be found in `code/samples` (`samples_*_main.c` and
 `samples_*_d3d12_main.cpp` files).
 
-### C++ integration
+## C++ integration
 
 You might actaully want to read 'C integration' section, as is supplies some
 important information w.r.t. usage. For C++ codebases, the process is simpler.
@@ -133,3 +201,19 @@ multiple unit build, you can include `d3d12ma.h` where necessary and add
 
 Examples can be found in `code/samples` (`samples_*_main.cpp`, not
 `samples_*_d3d12_main.cpp` files!).
+
+## Disclaimers
+
+These are bindings for [D3D12 Memory Allocator](https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator)
+developed by Advanced Micro Devices, Inc. I do not own D3D12 Memory Allocator
+in any way. Its documentation mentions that D3D12 Memory Allocator is a C++
+library and so it should remain, but bindings or ports to any other programming
+languages are welcome as external projects. Hence this effort.
+
+This `README.md` file does not provide any documentation for D3D12
+Memory Allocator itself. Refer to [the documentation](https://gpuopen-librariesandsdks.github.io/D3D12MemoryAllocator/html/).
+However, it does explain how the bindings relate to the original project.
+
+The codebase introduces some concepts found in MIT licensed
+[The RAD Debugger Project](https://github.com/EpicGamesExt/raddebugger), such
+as context cracking.
