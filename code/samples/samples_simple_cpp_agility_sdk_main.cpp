@@ -16,8 +16,8 @@
 #include "dxgi1_6.h"
 #include "third_party/d3d12/d3d12.h"
 
-extern UINT D3D12SDKVersion = 613;
-extern char *D3D12SDKPath = u8".\\third_party\\d3d12";
+extern "C" __declspec(dllexport) extern UINT D3D12SDKVersion = 613;
+extern "C" __declspec(dllexport) extern PSZ D3D12SDKPath = u8".\\third_party\\d3d12";
 
 #define D3D12MA_D3D12_HEADERS_ALREADY_INCLUDED
 #include "d3d12ma/d3d12ma.h"
@@ -111,6 +111,18 @@ main()
  {
   printf("Oh, `D3D12MA::CreateAllocator` failed!\n");
   return -1;
+ }
+ 
+ //- mwalky: query for a d3d12 options 13
+ {
+  D3D12_FEATURE_DATA_D3D12_OPTIONS13 feature_data = {0};
+  device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS13, &feature_data, sizeof(D3D12_FEATURE_DATA_D3D12_OPTIONS13));
+  printf("UnrestrictedBufferTextureCopyPitchSupported                                -> %s\n", feature_data.UnrestrictedBufferTextureCopyPitchSupported  ? "TRUE" : "FALSE");
+  printf("UnrestrictedVertexElementAlignmentSupported                                -> %s\n", feature_data.UnrestrictedVertexElementAlignmentSupported   ? "TRUE" : "FALSE");
+  printf("InvertedViewportHeightFlipsYSupported                                      -> %s\n", feature_data.InvertedViewportHeightFlipsYSupported   ? "TRUE" : "FALSE");
+  printf("InvertedViewportDepthFlipsZSupported                                       -> %s\n", feature_data.InvertedViewportDepthFlipsZSupported  ? "TRUE" : "FALSE");
+  printf("TextureCopyBetweenDimensionsSupported                                      -> %s\n", feature_data.TextureCopyBetweenDimensionsSupported   ? "TRUE" : "FALSE");
+  printf("AlphaBlendFactorSupported                                                  -> %s\n\n", feature_data.AlphaBlendFactorSupported  ? "TRUE" : "FALSE");
  }
  
  //- mwalky: query d3d12 options from allocator

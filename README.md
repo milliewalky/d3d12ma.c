@@ -179,14 +179,17 @@ Finally, it is possible to use this library with Agility SDK (again, back to
 #include "dxgi1_6.h"
 #include "path/to/d3d12.h"
 
-extern UINT D3D12SDKVersion = 613;
-extern char *D3D12SDKPath = u8".\\path\\to\\d3d12\\binaries";
+extern "C" __declspec(dllexport) extern UINT D3D12SDKVersion = <version_of_d3d12>;
+extern "C" __declspec(dllexport) extern PSZ D3D12SDKPath = u8".\\path\\to\\d3d12\\binaries";
 
 #define D3D12MA_D3D12_HEADERS_ALREADY_INCLUDED
 #include "d3d12ma.h"
 
 #include "d3d12ma.cpp"
 ```
+Refer to [Getting Started with the Agility SDK](https://devblogs.microsoft.com/directx/gettingstarted-dx12agility)
+for more details w.r.t. Agility SDK.
+
 Examples can be found in `code/samples` (`samples_*_main.c` and
 `samples_*_d3d12_main.cpp` files).
 
